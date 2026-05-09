@@ -183,7 +183,7 @@ async function setupBiometrics() {
                 challenge,
                 rp: { 
                     name: "FinTrackPro",
-                    id: window.location.hostname === "localhost" ? "localhost" : undefined 
+                    id: window.location.hostname 
                 },
                 user: {
                     id: new Uint8Array(16),
@@ -220,6 +220,7 @@ async function authenticateBiometrics() {
         const getCredentialOptions = {
             publicKey: {
                 challenge,
+                rpId: window.location.hostname, // Explicitly match the domain
                 timeout: 60000,
                 userVerification: "required"
             }
@@ -233,6 +234,10 @@ async function authenticateBiometrics() {
         }
     } catch (err) {
         console.log("Biometric failed", err);
+        // If it fails with a specific error, we show a hint
+        if (err.name === "NotAllowedError") {
+            console.log("User canceled or no passkey found.");
+        }
     }
 }
 
