@@ -28,12 +28,15 @@
 body {
   background: var(--bg-dark);
   color: var(--text-dark);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Outfit', sans-serif;
   padding-bottom: calc(100px + env(safe-area-inset-bottom));
   line-height: 1.5;
   overflow-x: hidden;
   transition: var(--transition);
   overscroll-behavior-y: contain; /* Prevents pull-to-refresh bounce */
+  user-select: none; /* Prevent text selection */
+  -webkit-user-select: none;
+  touch-action: manipulation; /* Faster taps, no zoom */
 }
 
 input, select, textarea {
@@ -876,6 +879,12 @@ body.light-mode #searchInput { color: var(--text-light); }
   font-size: 0.85rem;
   width: auto;
   min-width: 110px;
+  color: white; /* Visible in Dark Mode */
+  outline: none;
+}
+
+body.light-mode .date-range input[type="date"] {
+  color: var(--text-light); /* Visible in Light Mode */
 }
 
 .date-range span {
@@ -893,6 +902,7 @@ body.light-mode #searchInput { color: var(--text-light); }
   color: #ef4444;
   border: 1px solid var(--glass-border);
 }
+
 
 /* DATE GROUPS */
 .date-header {
