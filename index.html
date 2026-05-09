@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrackPro - Smart Finance Manager</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- PIN SCREEN -->
+    <div class="pin-screen" id="pinScreen">
+        <div class="pin-box">
+            <img src="./icon-192.png" alt="FinTrackPro"
+                style="width: 80px; height: 80px; margin-bottom: 15px; border-radius: 10px;">
+            <p class="text-secondary" style="margin-bottom: 24px;">Enter PIN to Unlock</p>
+            <div id="pinDisplay" class="pin-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <button onclick="authenticateBiometrics()" id="biometricBtn" class="hidden"
+                style="background: rgba(255,255,255,0.05); border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 16px; margin-bottom: 24px; width: auto; display: inline-flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">☝️</span> Unlock with Biometrics
+            </button>
+
+            <div class="pin-grid">
+                <button onclick="appendPin(1)">1</button>
+                <button onclick="appendPin(2)">2</button>
+                <button onclick="appendPin(3)">3</button>
+                <button onclick="appendPin(4)">4</button>
+                <button onclick="appendPin(5)">5</button>
+                <button onclick="appendPin(6)">6</button>
+                <button onclick="appendPin(7)">7</button>
+                <button onclick="appendPin(8)">8</button>
+                <button onclick="appendPin(9)">9</button>
+                <button onclick="resetPin()">✕</button>
+                <button onclick="appendPin(0)">0</button>
+                <button onclick="backspacePin()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONBOARDING SCREEN -->
+    <div id="onboardingScreen" class="onboarding-screen hidden">
+        <div class="onboarding-content">
+            <div class="welcome-icon">✨</div>
+            <h1>Welcome to FinTrackPro</h1>
+            <p>Your journey to financial freedom starts here. Add your first bank account or wallet to begin tracking.
+            </p>
+            <button onclick="openAccountModal()" class="primary-btn pulse">Add My First Account</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" style="display:none;">
+        <!-- HEADER -->
+        <header>
+            <div class="header-left" style="display: flex; align-items: center; gap: 12px;">
+                <img src="./icon-192.png" alt="Logo" style="width: 20%; height: 20%; border-radius: 5px;">
+                <div>
+                    <h1 class="font-bold" style="font-size: 1.2rem;">FinTrackPro</h1>
+                    <p id="todayDate" class="text-secondary" style="font-size: 0.7rem;"></p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="toggleTheme()" id="themeToggle" class="icon-btn">🌙</button>
+            </div>
+        </header>
+
+        <!-- BACKUP REMINDER BANNER -->
+        <div id="backupReminder" class="backup-banner hidden">
+            <div class="banner-content">
+                <span>📅 You haven't backed up your data today!</span>
+                <div class="banner-actions">
+                    <button onclick="exportData()" class="banner-btn">Export Now</button>
+                    <button onclick="document.getElementById('backupReminder').classList.add('hidden')"
+                        class="banner-close">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- HOME SECTION -->
+            <div id="homeSection">
+                <!-- BALANCE -->
+                <div class="balance-card">
+                    <h3>Total Net Worth</h3>
+                    <h1 id="balance">₹0</h1>
+                    <div class="summary">
+                        <div class="income-box">
+                            <p>Monthly Income</p>
+                            <h3 id="income">₹0</h3>
+                        </div>
+                        <div class="expense-box">
+                            <p>Monthly Expense</p>
+                            <h3 id="expense">₹0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCOUNTS SECTION -->
+                <div class="section-header">
+                    <div class="section-title">My Accounts</div>
+                    <button onclick="openAccountModal()"
+                        style="width: auto; margin: 0; padding: 8px 16px; font-size: 0.8rem;">+ Add</button>
+                </div>
+                <div class="accounts-container">
+                    <div class="accounts" id="accountsList">
+                        <!-- Dynanmic Accounts -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS SECTION -->
+            <div id="analyticsSection" class="hidden">
+                <div class="section-title">Spending Analysis</div>
+                <div class="chart-card">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+            </div>
+
+            <!-- REPORTS & INSIGHTS SECTION -->
+            <div id="reportsSection" class="hidden">
+                <div class="report-card">
+                    <h2>Summary</h2>
+                    <p id="monthlyReport"></p>
+                </div>
+
+                <!-- BACKUP & RESTORE -->
+                <div class="report-card">
+                    <div class="field-label">System Security</div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                        <div>
+                            <h2>Security & Protection</h2>
+                            <p style="font-size: 0.85rem; color: #94a3b8;">Manage your backups and biometric access.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 16px; margin-bottom: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">Biometric Login</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Fingerprint / Face Unlock</div>
+                            </div>
+                            <button onclick="setupBiometrics()" id="setupBioBtn"
+                                style="margin: 0; width: auto; padding: 8px 16px; font-size: 0.8rem;">Enable</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">Personal PIN</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Change your access code</div>
+                            </div>
+                            <button onclick="resetAppPin()"
+                                style="margin: 0; width: auto; padding: 8px 16px; font-size: 0.8rem; background: rgba(255,255,255,0.05);">Change</button>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">Data Management</p>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="exportData()" style="margin-top: 0; flex: 1;">📤 Export</button>
+                        <button onclick="document.getElementById('importFile').click()"
+                            style="margin-top: 0; flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">📥
+                            Import</button>
+                    </div>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                </div>
+
+                <!-- CSV EXPORT -->
+                <div class="report-card">
+                    <div class="field-label">Data Sharing</div>
+                    <h2>Generate Statement</h2>
+                    <button onclick="exportToCSV()" class="primary-btn pulse" style="margin-top: 10px;">📊 Download
+                        Excel/CSV Statement</button>
+                </div>
+
+                <div class="spotlight-grid">
+                    <div class="report-card spotlight" id="topExpenseCard">
+                        <div class="field-label">Top Expense Spotlight</div>
+                        <h1 id="topExpenseAmount">₹0</h1>
+                        <p id="topExpenseCategory" style="opacity: 0.8;">No data yet</p>
+                    </div>
+
+                    <div class="report-card spotlight">
+                        <div class="field-label">Spending Velocity</div>
+                        <h1 id="spendingVelocity">₹0</h1>
+                        <div class="velocity-indicator">Avg per day</div>
+                    </div>
+                </div>
+
+                <div id="smartInsights"></div>
+            </div>
+
+            <!-- DEBT TRACKER SECTION -->
+            <div id="debtsSection" class="hidden">
+                <div class="balance-card">
+                    <div class="field-label">Personal Ledger</div>
+                    <h2 style="font-size: 1.8rem;">₹<span id="netDebt">0</span></h2>
+                    <p style="font-size: 0.75rem; opacity: 0.7; margin-top: 4px;">Net Outstanding Balance</p>
+
+                    <div class="stats-row" style="margin-top: 24px;">
+                        <div class="stat-item">
+                            <span class="label">Owed to me</span>
+                            <span class="val income" id="lentTotal">₹0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">I owe</span>
+                            <span class="val expense" id="borrowedTotal">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px;">
+                    <h2 style="font-size: 1.2rem; font-weight: 800;">Active Clearances</h2>
+                    <button onclick="openDebtModal()" class="add-btn"
+                        style="padding: 8px 15px;width: 40%;margin-top: 0;">+ Add Debt</button>
+                </div>
+
+                <ul id="debtList" class="transaction-list"></ul>
+            </div>
+
+            <!-- TRANSACTIONS SECTION -->
+            <div id="transactionsSection">
+                <div class="section-header">
+                    <div class="section-title">Recent Transactions</div>
+                </div>
+
+                <div class="filter-controls">
+                    <div class="date-range">
+                        <input type="date" id="startDate" onchange="refreshAll()">
+                        <span>to</span>
+                        <input type="date" id="endDate" onchange="refreshAll()">
+                    </div>
+                    <button onclick="clearFilters()" class="clear-filters-btn">✕</button>
+                </div>
+
+                <div class="history-card">
+                    <input type="text" id="searchInput" placeholder="Search by details..."
+                        onkeyup="searchTransactions()">
+                    <ul id="transactionList">
+                        <!-- Dynamic Transactions -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" id="addTxBtn" onclick="openTxModal()">+</button>
+
+        <!-- TRANSACTION MODAL -->
+        <div class="modal" id="transactionModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Add Transaction</h2>
+                <input type="hidden" id="editTxId">
+                <input type="text" id="txTitle" placeholder="What was this for?">
+                <input type="number" id="txAmount" placeholder="Amount (₹)">
+
+                <div class="field-label">Transaction Date & Time</div>
+                <input type="datetime-local" id="txDateTime">
+
+                <select id="txType" onchange="handleTxTypeChange()">
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                    <option value="transfer">Transfer (Move Money)</option>
+                </select>
+
+                <div id="transferTargetContainer" class="hidden">
+                    <div class="field-label">Transfer To Account</div>
+                    <select id="txToAccountSelect">
+                        <!-- Dynamic Account Options -->
+                    </select>
+                </div>
+
+                <select id="txCategory" onchange="toggleCustomCategory()">
+                    <optgroup label="Food & Dining">
+                        <option value="Groceries">🛒 Groceries</option>
+                        <option value="Dining Out">🍽️ Dining Out</option>
+                        <option value="Snacks">☕ Snacks & Drinks</option>
+                    </optgroup>
+                    <optgroup label="Essential">
+                        <option value="Rent">🏠 Rent / Mortgage</option>
+                        <option value="Bills">🧾 Bills & Utilities</option>
+                        <option value="Transport">🚗 Transport / Fuel</option>
+                        <option value="Health">💊 Health & Fitness</option>
+                    </optgroup>
+                    <optgroup label="Lifestyle">
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Travel">✈️ Travel</option>
+                    </optgroup>
+                    <optgroup label="Financial">
+                        <option value="Salary">💰 Salary / Income</option>
+                        <option value="Investment">📈 Investment</option>
+                        <option value="Debt">💳 Debt Repayment</option>
+                    </optgroup>
+                    <option value="Others">✨ Others (Manual Input)</option>
+                </select>
+
+                <input type="text" id="customCategory" class="hidden" placeholder="Specify other category...">
+
+                <select id="txAccountSelect">
+                    <!-- Dynamic Account Options -->
+                </select>
+
+                <button onclick="saveTransaction()">Confirm Transaction</button>
+                <button class="close-btn" onclick="closeModal('transactionModal')">Cancel</button>
+            </div>
+        </div>
+
+        <!-- ACCOUNT MODAL -->
+        <div class="modal" id="accountModal">
+            <div class="modal-content">
+                <h2 id="accModalTitle">Add New Account</h2>
+                <input type="hidden" id="editAccountId">
+                <input type="text" id="accName" placeholder="Account Name (e.g. HDFC Bank)">
+                <input type="number" id="accBalance" placeholder="Initial Balance (₹)">
+
+                <button onclick="saveAccount()" id="accSaveBtn">Create Account</button>
+                <button id="accDeleteBtn" class="close-btn hidden" onclick="deleteAccount()"
+                    style="background: var(--expense); color: white;">Delete Account</button>
+                <button class="close-btn" onclick="closeModal('accountModal')">Dismiss</button>
+            </div>
+        </div>
+
+        <!-- DEBT MODAL -->
+        <div class="modal" id="debtModal">
+            <div class="modal-content">
+                <div class="field-label">Debt Entry</div>
+                <h2>Who's Involved?</h2>
+                <input type="text" id="debtPerson" placeholder="Person's Name">
+                <input type="number" id="debtAmount" placeholder="Amount (₹)">
+
+                <div class="field-label">Type</div>
+                <select id="debtType">
+                    <option value="lent">I Lent Money (They owe me)</option>
+                    <option value="borrowed">I Borrowed Money (I owe them)</option>
+                </select>
+
+                <button onclick="saveDebt()">Confirm Entry</button>
+                <button onclick="closeModal('debtModal')" class="close-btn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>FinTrackPro v1.0.0 | Developed by Shree Vishwakarma</p>
+            <p>© 2026 All Rights Reserved</p>
+        </footer>
+
+        <!-- NAVIGATION -->
+        <nav>
+            <div class="nav-item active" onclick="showTab('home', this)">
+                <i>🏠</i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="showTab('analytics', this)">
+                <i>📊</i>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item" onclick="showTab('debts', this)">
+                <i>🤝</i>
+                <span>Debts</span>
+            </div>
+            <div class="nav-item" onclick="showTab('reports', this)">
+                <i>💡</i>
+                <span>Insights</span>
+            </div>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js");
+        }
+    </script>
+</body>
+
+</html>
