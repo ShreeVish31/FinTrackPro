@@ -58,16 +58,20 @@ body.light-mode {
 }
 
 .pin-box {
-  width: 85%;
-  max-width: 280px;
-  min-width: 260px; /* Prevents it from becoming too thin */
+  width: 90%;
+  max-width: 300px;
+  min-height: 420px; /* Ensures a vertical, robust shape */
   background: var(--bg-card-dark);
-  padding: 24px 20px;
-  border-radius: 28px;
+  padding: 30px 20px;
+  border-radius: 32px;
   text-align: center;
   border: 1px solid var(--glass-border);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(25px);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(30px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .pin-dots {

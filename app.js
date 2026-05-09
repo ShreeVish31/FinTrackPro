@@ -245,21 +245,38 @@ function resetAppPin() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem("biometricSetup") === "true") {
-        const bioBtn = document.getElementById("biometricBtn");
-        if (bioBtn) bioBtn.classList.remove("hidden");
-        
-        const setupBtn = document.getElementById("setupBioBtn");
-        if (setupBtn) {
+// Function to sync biometric UI
+function syncBiometricUI() {
+    const isSetup = localStorage.getItem("biometricSetup") === "true";
+    const bioBtn = document.getElementById("biometricBtn");
+    const setupBtn = document.getElementById("setupBioBtn");
+
+    if (isSetup && bioBtn) {
+        bioBtn.classList.remove("hidden");
+    }
+
+    if (setupBtn) {
+        if (isSetup) {
             setupBtn.innerText = "Disable";
             setupBtn.style.background = "var(--expense)";
+        } else {
+            setupBtn.innerText = "Enable";
+            setupBtn.style.background = "var(--primary)";
         }
-        
-        // Auto-trigger biometric prompt
-        setTimeout(authenticateBiometrics, 500);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    syncBiometricUI();
+    
+    if (localStorage.getItem("biometricSetup") === "true") {
+        // Auto-trigger biometric prompt after a short delay for mobile stability
+        setTimeout(authenticateBiometrics, 600);
     }
 });
+
+// Also check when the window gets focus (returning to app)
+window.addEventListener('focus', syncBiometricUI);
 
 /* THEME MANAGEMENT */
 function toggleTheme() {
