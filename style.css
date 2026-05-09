@@ -77,43 +77,44 @@ body.light-mode {
 .pin-dots {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 2px solid var(--primary);
-  background: transparent;
-  transition: var(--transition);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .dot.active {
   background: var(--primary);
-  box-shadow: 0 0 8px var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+  transform: scale(1.2);
 }
 
 .pin-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
+  width: 100%;
 }
 
 .pin-grid button {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: white;
-  aspect-ratio: 1;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 0;
+  height: 58px;
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
 }
 
 .pin-grid button:active {
