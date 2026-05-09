@@ -58,10 +58,11 @@ body.light-mode {
 }
 
 .pin-box {
-  width: 80%;
-  max-width: 260px;
+  width: 85%;
+  max-width: 280px;
+  min-width: 260px; /* Prevents it from becoming too thin */
   background: var(--bg-card-dark);
-  padding: 20px 18px;
+  padding: 24px 20px;
   border-radius: 28px;
   text-align: center;
   border: 1px solid var(--glass-border);
