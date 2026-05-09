@@ -164,6 +164,7 @@ async function setupBiometrics() {
     if (localStorage.getItem("biometricSetup") === "true") {
         if (confirm("Disable biometric login?")) {
             localStorage.removeItem("biometricSetup");
+            localStorage.removeItem("bioUserId");
             location.reload();
         }
         return;
@@ -175,9 +176,16 @@ async function setupBiometrics() {
     }
 
     try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        // Create a persistent unique user ID for this device
+        let userId = localStorage.getItem("bioUserId");
+        if (!userId) {
+            userId = btoa(crypto.getRandomValues(new Uint8Array(16)));
+            localStorage.setItem("bioUserId", userId);
+        }
         
+        const userIdUint8 = Uint8Array.from(atob(userId), c => c.charCodeAt(0));
+
         const createCredentialOptions = {
             publicKey: {
                 challenge,
@@ -186,12 +194,16 @@ async function setupBiometrics() {
                     id: window.location.hostname 
                 },
                 user: {
-                    id: new Uint8Array(16),
-                    name: "user@fintrackpro",
+                    id: userIdUint8,
+                    name: "user-" + userId.substring(0, 8),
                     displayName: "FinTrackPro User"
                 },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                authenticatorSelection: { userVerification: "required" },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+                authenticatorSelection: { 
+                    userVerification: "required",
+                    residentKey: "preferred",
+                    requireResidentKey: false
+                },
                 timeout: 60000
             }
         };
@@ -199,28 +211,23 @@ async function setupBiometrics() {
         const credential = await navigator.credentials.create(createCredentialOptions);
         if (credential) {
             localStorage.setItem("biometricSetup", "true");
-            alert("Biometric login enabled successfully!");
+            alert("Success! Biometrics are now linked to this device.");
             location.reload();
         }
     } catch (err) {
-        if (window.location.hostname === "127.0.0.1") {
-            alert("Setup failed: Biometrics require using 'localhost' instead of '127.0.0.1' in the address bar. Please switch to http://localhost:5500");
-        } else {
-            alert("Setup failed: " + err.message);
-        }
+        alert("Setup failed: " + err.message);
     }
 }
 
 async function authenticateBiometrics() {
     haptic();
     try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
 
         const getCredentialOptions = {
             publicKey: {
                 challenge,
-                rpId: window.location.hostname, // Explicitly match the domain
+                rpId: window.location.hostname,
                 timeout: 60000,
                 userVerification: "required"
             }
@@ -233,10 +240,9 @@ async function authenticateBiometrics() {
             refreshAll();
         }
     } catch (err) {
-        console.log("Biometric failed", err);
-        // If it fails with a specific error, we show a hint
-        if (err.name === "NotAllowedError") {
-            console.log("User canceled or no passkey found.");
+        console.log("Biometric Auth Failed", err);
+        if (err.name !== "NotAllowedError") {
+            alert("Recognition failed. Please use your PIN.");
         }
     }
 }
