@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "io.github.shreevish31.twa",
-        "sha256_cert_fingerprints": ["82:FB:57:54:F7:0A:40:0B:70:33:FC:FA:09:C3:FE:14:65:C3:A9:15:81:04:BF:5C:0F:97:AF:9B:BC:28:A1:AD"]
+        "package_name": "app.netlify.fintrackpro_app.twa",
+        "sha256_cert_fingerprints": ["60:11:17:BF:3A:9F:DF:1E:B9:99:50:96:69:F4:73:DF:A6:DF:4B:B9:08:72:A5:3D:D7:E3:29:98:FD:A3:1D:0F"]
       }
     }]
