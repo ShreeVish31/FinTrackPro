@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.shreevish31.twa",
+        "sha256_cert_fingerprints": ["82:FB:57:54:F7:0A:40:0B:70:33:FC:FA:09:C3:FE:14:65:C3:A9:15:81:04:BF:5C:0F:97:AF:9B:BC:28:A1:AD"]
+      }
+    }]
